@@ -563,9 +563,31 @@ public class Base {
 
     // Create a new empty window (will be replaced with any files to be opened)
     if (!opened) {
-      Messages.log("Calling handleNew() to open a new window");
-      handleNew();
-    } else {
+      System.out.println("Preferences file location: " + Base.getSettingsFile("preferences.txt").getAbsolutePath());
+      String lastPath = Preferences.get("last.sketch.path");
+      Messages.log("DEBUG: last.sketch.path = " + lastPath);
+
+      if (lastPath != null) {
+        File sketchFolder = new File(lastPath);
+        if (sketchFolder.exists()) {
+          Messages.log("Restoring last sketch at: " + lastPath);
+          File mainSketchFile = Sketch.findMain(sketchFolder, getModeList());
+          if (mainSketchFile != null) {
+            handleOpen(mainSketchFile.getAbsolutePath());
+          } else {
+            Messages.log("Could not find main sketch file in folder, falling back to new sketch");
+            handleNew();
+          }
+        } else {
+          Messages.log("Last sketch path not found, falling back to new sketch");
+          handleNew();
+        }
+      } else {
+        Messages.log("No saved sketch path, opening new sketch");
+        handleNew();
+      }
+
+  } else {
       Messages.log("No handleNew(), something passed on the command line");
     }
 
@@ -1456,6 +1478,10 @@ public class Base {
     }
 
     File parentFolder = pdeFile.getParentFile();
+    Preferences.set("last.sketch.path", parentFolder.getAbsolutePath());
+    Preferences.save(); // force write to disk
+    System.out.println("Preferences file location: " + Base.getSettingsFile("preferences.txt").getAbsolutePath());
+    System.out.println("Saved last sketch path: " + parentFolder.getAbsolutePath());
 
     try {
       // read the sketch.properties file or get an empty Settings object

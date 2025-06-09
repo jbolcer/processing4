@@ -9,7 +9,8 @@ import java.io.PrintStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant
+        .BuildException;
 import org.apache.tools.ant.Task;
 
 
